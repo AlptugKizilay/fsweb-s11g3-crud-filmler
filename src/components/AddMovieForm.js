@@ -1,65 +1,53 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useHistory } from "react-router-dom";
-import { Link } from "react-router-dom";
-
 import axios from "axios";
+import { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import { nanoid } from "nanoid";
 
-const EditMovieForm = (props) => {
+const AddMovieForm = (props) => {
   const { push } = useHistory();
-  const {id} = useParams();
-
   const { setMovies } = props;
-  const [movie, setMovie] = useState({
+  const initial = {
+    id: nanoid(5),
     title: "",
     director: "",
     genre: "",
     metascore: 0,
     description: "",
-  });
-
+  };
+  const [newMovie, setNewMovie] = useState(initial);
+  let movieId = nanoid(5);
   const handleChange = (e) => {
-    setMovie({
-      ...movie,
+    setNewMovie({
+      ...newMovie,
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
+
     axios
-      .put(`http://localhost:9000/api/movies/${id}`, movie)
+      .post(`http://localhost:9000/api/movies`, newMovie)
       .then((res) => {
         setMovies(res.data);
-        push(`/movies/${movie.id}`);
+        push(`/movies`);
+        console.log(res.data);
       })
       .catch((err) => {
         console.log(err);
       });
   };
-  useEffect(() => {
-    axios
-      .get(`http://localhost:9000/api/movies/${id}`)
-      .then((res)=>{
-        setMovie(res.data);
-        console.log(res.data);
-      })
-      .catch((err)=>{console.log(err)})
-  },[])
-
-  const { title, director, genre, metascore, description } = movie;
-
   return (
     <div className="bg-white rounded-md shadow flex-1">
       <form onSubmit={handleSubmit}>
         <div className="p-5 pb-3 border-b border-zinc-200">
-          <h4 className="text-xl font-bold">Düzenleniyor <strong>{movie.title}</strong></h4>
+          <h4 className="text-xl font-bold">Yeni Film Ekle</h4>
         </div>
 
         <div className="px-5 py-3">
           <div className="py-2">
             <label className="block pb-1 text-lg">Title</label>
             <input
-              value={title}
+              value={newMovie.title}
               onChange={handleChange}
               name="title"
               type="text"
@@ -68,7 +56,7 @@ const EditMovieForm = (props) => {
           <div className="py-2">
             <label className="block pb-1 text-lg">Director</label>
             <input
-              value={director}
+              value={newMovie.director}
               onChange={handleChange}
               name="director"
               type="text"
@@ -77,7 +65,7 @@ const EditMovieForm = (props) => {
           <div className="py-2">
             <label className="block pb-1 text-lg">Genre</label>
             <input
-              value={genre}
+              value={newMovie.genre}
               onChange={handleChange}
               name="genre"
               type="text"
@@ -86,7 +74,7 @@ const EditMovieForm = (props) => {
           <div className="py-2">
             <label className="block pb-1 text-lg">Metascore</label>
             <input
-              value={metascore}
+              value={newMovie.metascore}
               onChange={handleChange}
               name="metascore"
               type="number"
@@ -95,7 +83,7 @@ const EditMovieForm = (props) => {
           <div className="py-2">
             <label className="block pb-1 text-lg">Description</label>
             <textarea
-              value={description}
+              value={newMovie.description}
               onChange={handleChange}
               name="description"
             ></textarea>
@@ -117,5 +105,4 @@ const EditMovieForm = (props) => {
     </div>
   );
 };
-
-export default EditMovieForm;
+export default AddMovieForm;
